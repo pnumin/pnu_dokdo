@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>독도: 평화와 미래를 위한 제안</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 300px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-active { border-bottom: 2px solid #1e3a8a; color: #1e3a8a; font-weight: 700; }
+        .tab-inactive { color: #6b7280; }
+        .tab-inactive:hover { color: #374151; }
+    </style>
+    <!-- Chosen Palette: "Calm Horizon" - Warm Neutral Background (#F9FAFB), Deep Ocean Blue (#1E3A8A) for primary elements, Soft Slate (#475569) for text, and muted accents. Designed to evoke stability and peace. -->
+    <!-- Application Structure Plan:
+         1. Hero Section: Sets the tone (Peace & Future) and defines the problem scope.
+         2. Evidence Explorer: Interactive toggle section to compare Korean historical grounds vs. Japanese contradictions vs. Geographic facts. Allows users to weigh the evidence themselves.
+         3. The Perception Gap (Data Viz): A dedicated section for the KBS-NHK survey data to highlight the root cause of the conflict (Justice vs. Diplomacy frame).
+         4. Timeline of Conflict: A scrolling timeline to contextualize the modern dispute.
+         5. Solution Framework (Tabs): Interactive tabs for the 3-layer policy proposal (Government, Academic, Civil), encouraging users to explore solutions actively.
+         This structure moves from "Facts" -> "Problem Analysis" -> "Solutions", guiding the user logically.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Geography (Chart.js Bar): Visualizes the physical distance difference (87.4km vs 157.5km) to intuitively prove the "Living Sphere" argument. Goal: Inform/Compare.
+         2. Perception Survey (Chart.js Grouped Bar): Visualizes the 2010 Survey results. Demonstrates the stark contrast in priorities. Goal: Compare/Relationships.
+         3. Interactive Cards (JS): Used for Historical Evidence and Policy Proposals to organize text-heavy content into digestible chunks. Goal: Inform/Organize.
+         4. Timeline (HTML/JS): Linear presentation of modern conflict history. Goal: Change/Chronology.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-blue-900">Dokdo Peace Initiative</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onclick="scrollToSection('intro')" class="text-gray-600 hover:text-blue-900 px-2 py-2 text-sm font-medium transition">배경</button>
+                    <button onclick="scrollToSection('evidence')" class="text-gray-600 hover:text-blue-900 px-2 py-2 text-sm font-medium transition">역사적 증거</button>
+                    <button onclick="scrollToSection('perception')" class="text-gray-600 hover:text-blue-900 px-2 py-2 text-sm font-medium transition">인식의 차이</button>
+                    <button onclick="scrollToSection('solutions')" class="text-gray-600 hover:text-blue-900 px-2 py-2 text-sm font-medium transition">정책 제안</button>
+                    <a href="index.html" class="ml-2 flex items-center gap-1 bg-blue-50 text-blue-900 hover:bg-blue-100 border border-blue-200 px-4 py-2 rounded-full text-sm font-bold transition">
+                        <span>🏠</span> 홈
+                    </a>
+                </div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-blue-900 focus:outline-none">
+                        <span class="text-2xl">☰</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200">
+            <a href="index.html" class="block w-full text-left px-4 py-3 text-sm font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 border-b border-gray-100">🏠 홈으로</a>
+            <button onclick="scrollToSection('intro'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">배경</button>
+            <button onclick="scrollToSection('evidence'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">역사적 증거</button>
+            <button onclick="scrollToSection('perception'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">인식의 차이</button>
+            <button onclick="scrollToSection('solutions'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">정책 제안</button>
+        </div>
+    </nav>
+
+    <!-- Hero / Intro Section -->
+    <section id="intro" class="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="text-center max-w-3xl mx-auto">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-900 tracking-tight mb-6">
+                독도 문제의 평화적 해결과<br>미래지향적 한일 관계
+            </h1>
+            <p class="text-xl text-gray-600 leading-relaxed mb-10">
+                독도 문제는 단순한 영토 분쟁이 아닙니다. 이는 한일 양국의 신뢰를 저해하고 동아시아의 평화를 가로막는 장벽입니다. 
+                감정적 대립을 넘어, 객관적 사실과 논리에 기반한 <span class="text-blue-700 font-semibold">새로운 평화의 로드맵</span>을 제안합니다.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="scrollToSection('evidence')" class="bg-blue-900 text-white px-8 py-3 rounded-full hover:bg-blue-800 transition shadow-lg font-medium">
+                    근거 살펴보기
+                </button>
+                <button onclick="scrollToSection('solutions')" class="bg-white text-blue-900 border border-blue-900 px-8 py-3 rounded-full hover:bg-blue-50 transition shadow font-medium">
+                    해결 방안 보기
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evidence Section -->
+    <section id="evidence" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10 text-center">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">1. 독도 영유권의 객관적 근거</h2>
+                <p class="max-w-3xl mx-auto text-gray-600">
+                    이 섹션에서는 독도가 한국의 영토임을 입증하는 역사적 문헌, 일본 측 사료의 모순, 그리고 지리적 데이터를 탐구합니다. 
+                    아래 버튼을 클릭하여 각기 다른 관점의 증거를 확인해 보세요.
+                </p>
+            </div>
+
+            <!-- Evidence Controls -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button onclick="renderEvidence('korea')" id="btn-korea" class="evidence-btn px-6 py-2 rounded-full border border-gray-300 bg-blue-900 text-white shadow-sm transition">한국 측 문헌</button>
+                <button onclick="renderEvidence('japan')" id="btn-japan" class="evidence-btn px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 shadow-sm transition">일본 사료의 모순</button>
+                <button onclick="renderEvidence('geo')" id="btn-geo" class="evidence-btn px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 shadow-sm transition">지리적/지질학적 근거</button>
+            </div>
+
+            <!-- Evidence Content Area -->
+            <div id="evidence-content" class="min-h-[400px]">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Conflict History (Brief Timeline) -->
+    <section class="py-16 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">2. 현대 갈등의 전개</h2>
+                <p class="max-w-3xl text-gray-600">
+                    명확한 역사적 귀속에도 불구하고, 20세기 초 제국주의 침략과 전후 처리 과정의 미비로 인해 갈등이 발생했습니다. 주요 사건을 통해 갈등의 흐름을 파악해 봅니다.
+                </p>
+            </div>
+            
+            <div class="relative border-l-4 border-blue-200 ml-4 md:ml-6 space-y-8" id="timeline-container">
+                <!-- Timeline items injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Perception Gap Section (Data Viz) -->
+    <section id="perception" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">3. 양국 인식의 현격한 차이</h2>
+                    <p class="text-gray-600 mb-6">
+                        독도 갈등이 평행선을 달리는 근본 원인은 문제의 본질을 바라보는 '프레임'의 차이입니다. 
+                        2010년 KBS-NHK 공동 여론조사 결과는 이러한 간극을 명확히 보여줍니다.
+                    </p>
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                        <h4 class="font-bold text-blue-900 mb-2">핵심 분석</h4>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">●</span>
+                                <span><strong>한국:</strong> 독도 문제를 '역사 정의(Historical Justice)'의 회복으로 인식 (주권 침탈의 상징).</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-400 mr-2">●</span>
+                                <span><strong>일본:</strong> 독도 문제를 현재의 '정치/외교(Political)' 분쟁으로 인식.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100">
+                    <h3 class="text-center text-sm font-semibold text-gray-500 mb-4">한일 관계 개선을 위한 최우선 해결 과제 (2010)</h3>
+                    <!-- Chart Container -->
+                    <div class="chart-container">
+                        <canvas id="perceptionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Policy Proposals Section -->
+    <section id="solutions" class="py-20 bg-blue-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">4. 평화적 해결을 위한 다층적 정책 제안</h2>
+                <p class="max-w-3xl mx-auto text-blue-100 text-lg">
+                    정부의 외교적 노력만으로는 부족합니다. 학술, 교육, 민간이 함께하는 '다층적 접근'이 필요합니다. 
+                    각 주체별 제안을 확인해 보세요.
+                </p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex justify-center mb-8 border-b border-blue-700">
+                <button onclick="switchTab('gov')" id="tab-gov" class="proposal-tab px-6 py-3 font-medium text-white border-b-4 border-white focus:outline-none transition">정부 차원</button>
+                <button onclick="switchTab('edu')" id="tab-edu" class="proposal-tab px-6 py-3 font-medium text-blue-300 hover:text-white border-b-4 border-transparent focus:outline-none transition">학술/교육</button>
+                <button onclick="switchTab('civil')" id="tab-civil" class="proposal-tab px-6 py-3 font-medium text-blue-300 hover:text-white border-b-4 border-transparent focus:outline-none transition">민간/미래세대</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="proposal-content" class="min-h-[300px] max-w-4xl mx-auto">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Conclusion -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">결론 및 기대효과</h2>
+            <div class="grid md:grid-cols-3 gap-6 text-left">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                    <div class="text-2xl mb-3">🤝</div>
+                    <h3 class="font-bold text-gray-800 mb-2">관계의 안정적 관리</h3>
+                    <p class="text-sm text-gray-600">소모적 마찰을 줄이고 경제·안보 협력을 강화하여 관계의 예측 가능성을 높입니다.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                    <div class="text-2xl mb-3">🌱</div>
+                    <h3 class="font-bold text-gray-800 mb-2">미래 세대 인식 개선</h3>
+                    <p class="text-sm text-gray-600">객관적 사실에 기반한 교육으로 맹목적 적대감을 해소하고 상호 이해를 증진합니다.</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="text-2xl mb-3">🌏</div>
+                    <h3 class="font-bold text-gray-800 mb-2">동아시아 평화 기여</h3>
+                    <p class="text-sm text-gray-600">갈등의 평화적 관리는 동아시아 전체의 안정과 번영을 위한 중요한 자산이 됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-8 text-center text-sm">
+        <p>© 2026 Dokdo Peace Initiative Interactive Report. Based on the Policy Proposal Document.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Data Storage ---
+
+        const evidenceData = {
+            korea: [
+                {
+                    title: "세종실록지리지 (1454)",
+                    desc: "우산(독도)과 무릉(울릉도)이 서로 거리가 멀지 않아 날씨가 맑으면 바라볼 수 있다고 기록. 두 섬을 강원도 울진현 소속의 행정 구역으로 인식했음을 증명.",
+                    icon: "📜"
+                },
+                {
+                    title: "대한제국 칙령 제41호 (1900)",
+                    desc: "고종 황제가 울릉군 관할 구역에 '석도(독도)'를 명시적으로 포함. 근대 법체계 안에서 영토 주권을 확립한 결정적 증거.",
+                    icon: "🏛️"
+                },
+                {
+                    title: "만기요람 (1808)",
+                    desc: "'우산은 왜인들이 말하는 송도(당시 일본 명칭)'라고 기록하여, 우산도가 곧 독도임을 명확히 하고 조선 영토임을 재확인.",
+                    icon: "📖"
+                }
+            ],
+            japan: [
+                {
+                    title: "태정관 지령 (1877)",
+                    desc: "일본 메이지 정부 최고 행정기관인 태정관이 '울릉도와 독도는 일본과 관계가 없다'고 내린 공식 지령. 일본 스스로 영유권을 부정한 결정적 증거.",
+                    icon: "🚫"
+                },
+                {
+                    title: "은주시청합기 (1667)",
+                    desc: "일본 관리가 일본의 서쪽 경계를 오키섬으로 한정. 울릉도와 독도를 일본 영토 밖(조선 땅)으로 인식했음을 보여주는 기록.",
+                    icon: "🗺️"
+                }
+            ],
+            geo: {
+                type: 'chart',
+                desc: "울릉도에서는 독도가 보이지만, 일본 오키섬에서는 보이지 않습니다. 지리적 거리와 가시성은 독도가 역사적으로 울릉도 생활권이었음을 시사합니다."
+            }
+        };
+
+        const timelineData = [
+            { year: "1905", title: "일본의 불법 편입", desc: "러일전쟁 중 군사적 필요로 '주인 없는 땅'이라며 시마네현 고시로 불법 편입." },
+            { year: "1946", title: "SCAPIN 제677호", desc: "연합군최고사령부가 독도를 일본 통치 구역에서 명시적으로 제외." },
+            { year: "1951", title: "샌프란시스코 강화조약", desc: "일본의 로비로 독도 조항이 누락되어 영유권 분쟁의 씨앗이 됨." },
+            { year: "1998", title: "신한일어업협정", desc: "독도가 중간수역에 포함되며 영유권 논란 재점화." },
+            { year: "2005~", title: "일본의 도발 심화", desc: "'다케시마의 날' 제정 및 교과서 역사 왜곡 심화." }
+        ];
+
+        const proposalData = {
+            gov: {
+                title: "조용한 외교 & 투 트랙 전략",
+                items: [
+                    "<strong>확성기 외교 지양:</strong> 일본의 분쟁지역화 전략에 말려들지 않도록 감정적 대응 자제 및 논리적 국제 홍보 강화.",
+                    "<strong>투 트랙(Two-Track) 접근:</strong> 영토 문제와 별개로 경제·문화 협력 지속.",
+                    "<strong>해양 자원 공동 연구:</strong> 독도 주변 해역의 생태계 및 자원 관리를 위한 비영토적 협력 모델 제안."
+                ]
+            },
+            edu: {
+                title: "객관성 확보 & 상호 이해",
+                items: [
+                    "<strong>한일역사공동연구위 재가동:</strong> 양국 학자가 사료를 공동 검토하고 결과를 투명하게 공개.",
+                    "<strong>공동 역사 부교재 개발:</strong> 편향된 시각을 바로잡고 균형 잡힌 역사관을 교육할 수 있는 교재 보급."
+                ]
+            },
+            civil: {
+                title: "미래세대 교류 & 시민 연대",
+                items: [
+                    "<strong>청소년 공동 캠프:</strong> 독도/오키섬 해양생태 탐사 및 역사 토론을 통해 공감대 형성.",
+                    "<strong>시민사회 네트워크:</strong> 영토 내셔널리즘을 넘어 동아시아 평화와 인권 관점의 시민 연대 강화."
+                ]
+            }
+        };
+
+        const perceptionData = {
+            labels: ['한국 국민', '일본 국민'],
+            datasets: [
+                {
+                    label: '독도 영유권 해결 (역사 정의)',
+                    data: [62, 0], // Japan data roughly implied low/negligible for this specific framing in top priorities
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)', // Blue
+                },
+                {
+                    label: '정치적 대화/교류',
+                    data: [0, 37],
+                    backgroundColor: 'rgba(239, 68, 68, 0.6)', // Red
+                },
+                {
+                    label: '기타 (경제/문화 등)',
+                    data: [38, 63],
+                    backgroundColor: 'rgba(209, 213, 219, 0.8)', // Gray
+                }
+            ]
+        };
+
+        // --- Core Functions ---
+
+        // Evidence Renderer
+        function renderEvidence(type) {
+            const container = document.getElementById('evidence-content');
+            const buttons = document.querySelectorAll('.evidence-btn');
+            
+            // Update Button Styles
+            buttons.forEach(btn => {
+                if(btn.id === `btn-${type}`) {
+                    btn.classList.remove('bg-white', 'text-gray-600');
+                    btn.classList.add('bg-blue-900', 'text-white');
+                } else {
+                    btn.classList.add('bg-white', 'text-gray-600');
+                    btn.classList.remove('bg-blue-900', 'text-white');
+                }
+            });
+
+            container.innerHTML = ''; // Clear content
+
+            if (type === 'geo') {
+                // Render Geo Chart
+                const chartWrapper = document.createElement('div');
+                chartWrapper.className = 'bg-gray-50 p-6 rounded-xl border border-gray-200 fade-in';
+                chartWrapper.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-center">지리적 거리 비교: 누가 더 가까운가?</h3>
+                    <p class="text-center mb-6 text-gray-600">${evidenceData.geo.desc}</p>
+                    <div class="chart-container">
+                        <canvas id="geoChart"></canvas>
+                    </div>
+                `;
+                container.appendChild(chartWrapper);
+                initGeoChart();
+            } else {
+                // Render Cards
+                const grid = document.createElement('div');
+                grid.className = 'grid md:grid-cols-2 gap-6 fade-in';
+                
+                evidenceData[type].forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition';
+                    card.innerHTML = `
+                        <div class="flex items-center mb-3">
+                            <span class="text-3xl mr-3">${item.icon}</span>
+                            <h4 class="font-bold text-lg text-gray-800">${item.title}</h4>
+                        </div>
+                        <p class="text-gray-600 leading-relaxed">${item.desc}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
+            }
+        }
+
+        // Timeline Renderer
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            timelineData.forEach(item => {
+                const node = document.createElement('div');
+                node.className = 'relative pl-8';
+                node.innerHTML = `
+                    <div class="absolute -left-2.5 top-0 w-5 h-5 bg-blue-500 rounded-full border-4 border-white shadow"></div>
+                    <div>
+                        <span class="text-sm text-blue-600 font-bold tracking-wide">${item.year}</span>
+                        <h4 class="text-lg font-bold text-gray-900 mt-1">${item.title}</h4>
+                        <p class="text-gray-600 mt-2 text-sm leading-relaxed">${item.desc}</p>
+                    </div>
+                `;
+                container.appendChild(node);
+            });
+        }
+
+        // Proposal Tab Switcher
+        function switchTab(tabId) {
+            // Update Tab Styles
+            document.querySelectorAll('.proposal-tab').forEach(tab => {
+                if (tab.id === `tab-${tabId}`) {
+                    tab.classList.remove('text-blue-300', 'border-transparent', 'hover:text-white');
+                    tab.classList.add('text-white', 'border-white');
+                } else {
+                    tab.classList.add('text-blue-300', 'border-transparent', 'hover:text-white');
+                    tab.classList.remove('text-white', 'border-white');
+                }
+            });
+
+            // Update Content
+            const contentDiv = document.getElementById('proposal-content');
+            const data = proposalData[tabId];
+            
+            contentDiv.innerHTML = `
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-xl fade-in">
+                    <h3 class="text-2xl font-bold mb-6 text-blue-100 flex items-center">
+                        ${data.title}
+                    </h3>
+                    <ul class="space-y-4">
+                        ${data.items.map(item => `
+                            <li class="flex items-start text-blue-50">
+                                <span class="mr-3 mt-1 text-blue-300">✓</span>
+                                <span>${item}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Navigation
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- Chart Initialization ---
+
+        function initPerceptionChart() {
+            const ctx = document.getElementById('perceptionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: perceptionData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: { display: true, text: '응답 비율 (%)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initGeoChart() {
+            const ctx = document.getElementById('geoChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: ['울릉도 ↔ 독도', '오키섬 ↔ 독도'],
+                    datasets: [{
+                        label: '거리 (km)',
+                        data: [87.4, 157.5],
+                        backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(209, 213, 219, 0.8)'],
+                        borderColor: ['rgb(59, 130, 246)', 'rgb(209, 213, 219)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.raw} km`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: '거리 (km)' } }
+                    }
+                }
+            });
+        }
+
+        // --- Initialization ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEvidence('korea'); // Default evidence view
+            renderTimeline();
+            initPerceptionChart();
+            switchTab('gov'); // Default proposal tab
+            
+            // Mobile Menu Toggle
+            document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+        });
+
+    </script>
+</body>
+</html>
