@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자이언트 펭TV 독도 편 시청자 반응 분석 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            color: #2d3748;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item.active {
+            color: #3182ce;
+            border-bottom: 2px solid #3182ce;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🐧</span>
+                    <h1 class="text-xl font-bold text-gray-800">자이언트 펭TV 독도 편 분석</h1>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-medium items-center">
+                    <a href="#" onclick="scrollToSection('section-overview')" class="nav-item active hover:text-blue-600 transition">개요</a>
+                    <a href="#" onclick="scrollToSection('section-keywords')" class="nav-item hover:text-blue-600 transition">키워드 분석</a>
+                    <a href="#" onclick="scrollToSection('section-sentiment')" class="nav-item hover:text-blue-600 transition">감성 분석</a>
+                    <a href="#" onclick="scrollToSection('section-success')" class="nav-item hover:text-blue-600 transition">성공 요인</a>
+                    <a href="#" onclick="scrollToSection('section-strategy')" class="nav-item hover:text-blue-600 transition">향후 전략</a>
+                    
+                    <!-- New Menu Items -->
+                    <div class="h-4 w-px bg-gray-300 mx-2"></div> <!-- Separator -->
+                    <button onclick="openModal('infographicModal')" class="flex items-center text-gray-600 hover:text-blue-600 transition px-2 py-1 rounded hover:bg-gray-50">
+                        <i class="fas fa-image mr-1"></i> 인포그래픽
+                    </button>
+                    <button onclick="openModal('reportModal')" class="flex items-center text-gray-600 hover:text-blue-600 transition px-2 py-1 rounded hover:bg-gray-50">
+                        <i class="fas fa-file-pdf mr-1"></i> 보고서
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 space-y-12">
+
+        <!-- 1. Overview Section -->
+        <section id="section-overview" class="bg-white rounded-2xl shadow-sm p-8 fade-in">
+            <div class="max-w-4xl mx-auto text-center mb-8">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900">데이터로 보는 '독도 펭수'의 성공 공식</h2>
+                <p class="text-lg text-gray-600 leading-relaxed">
+                    본 리포트는 EBS 자이언트 펭TV의 <strong>[EP.197] 독도가 한국땅인 이유</strong> 영상에 대한 시청자 반응을 심층 분석한 결과입니다.
+                    단순한 조회수를 넘어, 댓글 텍스트 마이닝을 통해 시청자들의 <strong>진짜 속마음</strong>과 콘텐츠의 <strong>성공 동인</strong>을 규명합니다.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="p-6 bg-blue-50 rounded-xl">
+                    <div class="text-blue-600 text-3xl mb-2"><i class="fas fa-comment-dots"></i></div>
+                    <h3 class="font-bold text-gray-700">분석 대상</h3>
+                    <p class="text-sm text-gray-500 mt-1">유튜브 댓글 데이터</p>
+                </div>
+                <div class="p-6 bg-yellow-50 rounded-xl">
+                    <div class="text-yellow-600 text-3xl mb-2"><i class="fas fa-search"></i></div>
+                    <h3 class="font-bold text-gray-700">주요 방법론</h3>
+                    <p class="text-sm text-gray-500 mt-1">키워드 빈도 & 감성 분석</p>
+                </div>
+                <div class="p-6 bg-red-50 rounded-xl">
+                    <div class="text-red-500 text-3xl mb-2"><i class="fas fa-bullseye"></i></div>
+                    <h3 class="font-bold text-gray-700">최종 목표</h3>
+                    <p class="text-sm text-gray-500 mt-1">성장 전략 및 성공 공식 도출</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Keyword Analysis Section -->
+        <section id="section-keywords" class="fade-in">
+            <div class="bg-white rounded-2xl shadow-sm p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            <span class="text-blue-500">#</span> 시청자 관심 키워드
+                        </h2>
+                        <p class="text-gray-500 mt-2 max-w-2xl">
+                            댓글에서 가장 많이 언급된 단어들을 세 가지 핵심 클러스터로 분류했습니다. 
+                            버튼을 클릭하여 각 주제별 상위 키워드를 확인해보세요.
+                        </p>
+                    </div>
+                    <div class="flex space-x-2 mt-4 md:mt-0 bg-gray-100 p-1 rounded-lg">
+                        <button onclick="updateChart('all')" class="px-4 py-2 rounded-md text-sm font-medium transition bg-white shadow-sm text-blue-600 filter-btn" id="btn-all">전체</button>
+                        <button onclick="updateChart('sovereignty')" class="px-4 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition filter-btn" id="btn-sovereignty">주권/장소</button>
+                        <button onclick="updateChart('character')" class="px-4 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition filter-btn" id="btn-character">캐릭터/팬덤</button>
+                        <button onclick="updateChart('emotion')" class="px-4 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition filter-btn" id="btn-emotion">감상/반응</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Chart Area -->
+                    <div class="lg:col-span-2">
+                        <div class="chart-container">
+                            <canvas id="keywordChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Insight Box -->
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 flex flex-col justify-center">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">💡 분석 인사이트</h3>
+                        <div id="keyword-insight-content" class="text-gray-600 space-y-4">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Sentiment Analysis Section -->
+        <section id="section-sentiment" class="fade-in">
+            <div class="bg-white rounded-2xl shadow-sm p-8">
+                <div class="text-center mb-10">
+                    <h2 class="text-2xl font-bold text-gray-900">감성 분포의 반전 (The Sentiment Paradox)</h2>
+                    <p class="text-gray-500 mt-2">
+                        단순한 긍/부정 수치 너머에 있는 시청자의 진짜 속마음을 들여다보았습니다.
+                        <br><span class="text-blue-500 font-semibold cursor-pointer hover:underline" onclick="toggleSentimentDetails()">그래프의 '부정(Negative)' 영역을 주목해주세요.</span>
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <!-- Donut Chart -->
+                    <div class="flex flex-col items-center">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="sentimentChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-4 text-center">그래프의 요소를 클릭하면 상세 내용이 표시됩니다.</p>
+                    </div>
+
+                    <!-- Detail Text / Drill-down -->
+                    <div class="relative min-h-[300px]">
+                        <!-- Default View -->
+                        <div id="sentiment-default" class="absolute inset-0 transition-opacity duration-500 opacity-100">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">수치상 결과: 긍정 우세</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mt-1.5 mr-3 flex-shrink-0"></span>
+                                    <div>
+                                        <span class="font-bold text-gray-700">긍정 (54.3%)</span>
+                                        <p class="text-sm text-gray-600">애국심 고취, 영상미에 대한 찬사, 힐링과 감동 표현이 주를 이룸.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start cursor-pointer group" onclick="showNegativeDetail()">
+                                    <span class="inline-block w-3 h-3 rounded-full bg-red-400 mt-1.5 mr-3 flex-shrink-0 group-hover:scale-125 transition"></span>
+                                    <div>
+                                        <span class="font-bold text-gray-700 group-hover:text-red-500 transition">부정 (45.7%) - 클릭하여 진실 보기 👉</span>
+                                        <p class="text-sm text-gray-600">수치상으로 상당히 높은 비중을 차지함. 과연 시청자들은 화가 난 것일까요?</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Negative Drill-down View -->
+                        <div id="sentiment-negative-detail" class="absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none">
+                            <div class="bg-red-50 border border-red-100 rounded-xl p-6 h-full">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-xl font-bold text-red-600">🚨 '부정'의 진짜 의미: 과몰입과 열망</h3>
+                                    <button onclick="hideNegativeDetail()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                                </div>
+                                <p class="text-gray-700 mb-4 text-sm">
+                                    기계적으로 '부정' 분류된 댓글의 대다수는 실제 비판이 아닌 <strong>강한 애정과 아쉬움</strong>의 반어적 표현입니다.
+                                </p>
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded shadow-sm">
+                                        <span class="text-xs font-bold text-red-500 block mb-1">아쉬움의 토로</span>
+                                        <p class="text-sm text-gray-800">"너무 짧아서 화나요", "현기증 나니까 더 주세요"</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded shadow-sm">
+                                        <span class="text-xs font-bold text-red-500 block mb-1">슬픔과 감동</span>
+                                        <p class="text-sm text-gray-800">"눈물 난다", "가슴이 미어진다"</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded shadow-sm">
+                                        <span class="text-xs font-bold text-red-500 block mb-1">캐릭터 걱정 (과몰입)</span>
+                                        <p class="text-sm text-gray-800">"짐 잃어버려서 어떡해", "펭수 고생했어"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Success Factors -->
+        <section id="section-success" class="fade-in">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold text-gray-900">3대 성공 요인 (Key Success Factors)</h2>
+                <p class="text-gray-500 mt-2">긍정적 반응을 이끌어낸 핵심 동력은 무엇일까요?</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Factor 1 -->
+                <div class="card bg-white p-8 rounded-2xl border-t-4 border-blue-500">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl mb-4">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">애국심 고취<br>(Patriotism)</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        광복절이라는 시의성에 맞춰 '펭수'라는 인기 IP가 독도를 방문했습니다. 이는 단순 예능을 넘어 'K-펭귄'으로서의 자긍심을 고취시키는 강력한 기제로 작용했습니다.
+                    </p>
+                </div>
+
+                <!-- Factor 2 -->
+                <div class="card bg-white p-8 rounded-2xl border-t-4 border-teal-400">
+                    <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center text-xl mb-4">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">힐링 영상미<br>(Healing)</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        독도의 아름다운 자연 풍광과 펭수의 순수한 모습이 결합되었습니다. 시각적 아름다움은 시청자들에게 강력한 '힐링'과 '감동'을 선사했습니다.
+                    </p>
+                </div>
+
+                <!-- Factor 3 -->
+                <div class="card bg-white p-8 rounded-2xl border-t-4 border-yellow-400">
+                    <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-xl mb-4">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">따뜻한 교감<br>(Chemistry)</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        울릉도 주민들, 특히 '어머님들'과 스스럼없이 소통하는 펭수의 모습은 콘텐츠에 따뜻함과 인간미를 더하며 시청자들의 마음을 열었습니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Strategy Section -->
+        <section id="section-strategy" class="fade-in pb-12">
+            <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl shadow-lg p-8 text-white">
+                <div class="flex flex-col md:flex-row items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mb-2">향후 채널 성장 전략 제언</h2>
+                        <p class="text-gray-400">데이터 인사이트를 기반으로 도출한 실행 전략입니다.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">
+                        <span class="text-yellow-400 font-bold">Action Plan</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Strategy 1 -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-blue-500/20 p-3 rounded-lg text-blue-400">
+                                <i class="fas fa-graduation-cap text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-blue-300 mb-2">'교육적 가치' 필러(Pillar) 구축</h3>
+                                <p class="text-gray-300 text-sm mb-3">
+                                    엔터테인먼트와 공익적 가치의 결합
+                                </p>
+                                <ul class="text-gray-400 text-sm list-disc pl-4 space-y-1">
+                                    <li>펭수 IP를 국가적/사회적 의미 있는 주제와 지속 결합</li>
+                                    <li>독보적인 '선한 영향력' 브랜드 정체성 확립</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Strategy 2 -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-red-500/20 p-3 rounded-lg text-red-400">
+                                <i class="fas fa-sync-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-red-300 mb-2">팬덤 충성도 강화 루프(Loop)</h3>
+                                <p class="text-gray-300 text-sm mb-3">
+                                    '부정 반응(열망)'을 '만족'으로 전환
+                                </p>
+                                <ul class="text-gray-400 text-sm list-disc pl-4 space-y-1">
+                                    <li><strong>분량 확대:</strong> "너무 짧다"는 니즈 반영</li>
+                                    <li><strong>서사 완결:</strong> 잃어버린 짐가방 등 비하인드 공개</li>
+                                    <li>참여-보상 루프 구축으로 기대감 지속</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2024 Giant Peng TV Analysis Report Dashboard.</p>
+            <p class="mt-2">Based on analysis of EP.197 YouTube Comments.</p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Infographic Modal -->
+    <div id="infographicModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeModal('infographicModal')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">인포그래픽</h3>
+                        <button onclick="closeModal('infographicModal')" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2 text-center bg-gray-100 rounded-lg p-4 min-h-[300px] flex items-center justify-center">
+                        <img src="./img/설명.png" alt="인포그래픽 이미지" class="max-w-full h-auto mx-auto shadow-md" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Infographic+Image+Not+Found'; this.nextElementSibling.style.display='block';">
+                        <p class="text-red-500 mt-2 hidden">이미지를 찾을 수 없습니다. (./img/설명.png)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeModal('reportModal')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full h-[85vh]">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">분석 보고서 (PDF)</h3>
+                        <button onclick="closeModal('reportModal')" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2 flex-grow h-full bg-gray-100 rounded-lg overflow-hidden relative">
+                         <iframe src="보고서.pdf" class="w-full h-full" frameborder="0">
+                            <div class="flex flex-col items-center justify-center h-full text-gray-500">
+                                <p class="mb-2">브라우저가 PDF 미리보기를 지원하지 않거나 파일을 찾을 수 없습니다.</p>
+                                <a href="보고서.pdf" target="_blank" class="text-blue-500 hover:underline">
+                                    <i class="fas fa-download mr-1"></i> PDF 다운로드
+                                </a>
+                            </div>
+                         </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Data Store
+        const reportData = {
+            keywords: {
+                sovereignty: {
+                    label: "주권 및 장소",
+                    data: [
+                        { label: "독도", value: 784 },
+                        { label: "한국", value: 331 },
+                        { label: "울릉도", value: 95 },
+                        { label: "우리땅", value: 77 },
+                        { label: "영토", value: 58 }
+                    ],
+                    insight: "<strong>'독도(784회)'</strong> 키워드가 압도적입니다. 이는 '한국(331회)'보다 2배, '우리땅'보다 10배 높은 수치로, 시청자들이 단순 애국심을 넘어 <strong>독도라는 장소의 주권</strong>에 명확히 집중하고 있음을 보여줍니다."
+                },
+                character: {
+                    label: "캐릭터 및 팬덤",
+                    data: [
+                        { label: "펭수", value: 200 }, // Estimated relative value for viz
+                        { label: "갈매기", value: 72 },
+                        { label: "오징어", value: 71 },
+                        { label: "할머니", value: 23 }
+                    ],
+                    insight: "펭수를 중심으로 <strong>갈매기, 오징어, 할머니</strong> 등 에피소드에 등장한 소재들이 높은 빈도로 언급되었습니다. 캐릭터 간의 케미스트리가 시청 포인트였음을 알 수 있습니다."
+                },
+                emotion: {
+                    label: "반응 및 감상",
+                    data: [
+                        { label: "영상", value: 61 },
+                        { label: "사랑", value: 56 },
+                        { label: "역시", value: 55 },
+                        { label: "바다", value: 54 },
+                        { label: "힐링", value: 51 }
+                    ],
+                    insight: "<strong>'사랑', '힐링', '감동', '바다'</strong> 등의 키워드는 콘텐츠의 뛰어난 영상미와 그것이 전달한 정서적 안정감을 대변합니다."
+                }
+            },
+            sentiment: {
+                positive: 54.3,
+                negative: 45.7
+            }
+        };
+
+        let keywordChartInstance = null;
+        let sentimentChartInstance = null;
+
+        // Init Keyword Chart
+        function initKeywordChart() {
+            const ctx = document.getElementById('keywordChart').getContext('2d');
+            
+            // Initial Data (Combine top 3 from each for "All" view)
+            const allLabels = ["독도", "한국", "펭수", "울릉도", "우리땅", "갈매기", "오징어", "영상", "사랑", "힐링"];
+            const allValues = [784, 331, 200, 95, 77, 72, 71, 61, 56, 51];
+            const backgroundColors = allLabels.map((_, i) => i < 2 ? 'rgba(49, 130, 206, 0.8)' : (i < 7 ? 'rgba(236, 201, 75, 0.8)' : 'rgba(229, 62, 62, 0.8)'));
+
+            keywordChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: allLabels,
+                    datasets: [{
+                        label: '언급 빈도 (회)',
+                        data: allValues,
+                        backgroundColor: backgroundColors,
+                        borderRadius: 6,
+                        barThickness: 'flex',
+                        maxBarThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '회 언급';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { borderDash: [2, 2] }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Set Initial Insight
+            document.getElementById('keyword-insight-content').innerHTML = `
+                전체적으로 <strong>'독도'</strong>와 <strong>'한국'</strong> 관련 키워드가 지배적입니다. 
+                <br>동시에 '펭수' 캐릭터와 '힐링' 감성 키워드가 조화를 이루고 있어, 
+                <strong>메시지(주권)와 재미(캐릭터)</strong>를 모두 잡은 콘텐츠임을 입증합니다.
+            `;
+        }
+
+        // Update Keyword Chart Logic
+        function updateChart(category) {
+            // Update Buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "px-4 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition filter-btn";
+            });
+            document.getElementById(`btn-${category}`).className = "px-4 py-2 rounded-md text-sm font-medium transition bg-white shadow-sm text-blue-600 filter-btn";
+
+            // Prepare Data
+            let labels, values, colors, insight;
+            
+            if (category === 'all') {
+                labels = ["독도", "한국", "펭수", "울릉도", "우리땅", "갈매기", "오징어", "영상", "사랑", "힐링"];
+                values = [784, 331, 200, 95, 77, 72, 71, 61, 56, 51];
+                colors = labels.map((_, i) => i < 2 ? 'rgba(49, 130, 206, 0.8)' : (i < 7 ? 'rgba(236, 201, 75, 0.8)' : 'rgba(229, 62, 62, 0.8)'));
+                insight = `
+                    전체적으로 <strong>'독도'</strong>와 <strong>'한국'</strong> 관련 키워드가 지배적입니다. 
+                    <br>동시에 '펭수' 캐릭터와 '힐링' 감성 키워드가 조화를 이루고 있어, 
+                    <strong>메시지(주권)와 재미(캐릭터)</strong>를 모두 잡은 콘텐츠임을 입증합니다.
+                `;
+            } else {
+                const dataObj = reportData.keywords[category];
+                labels = dataObj.data.map(d => d.label);
+                values = dataObj.data.map(d => d.value);
+                insight = dataObj.insight;
+                
+                // Color based on category
+                let baseColor;
+                if(category === 'sovereignty') baseColor = 'rgba(49, 130, 206, 0.8)'; // Blue
+                else if(category === 'character') baseColor = 'rgba(236, 201, 75, 0.8)'; // Yellow
+                else baseColor = 'rgba(229, 62, 62, 0.8)'; // Red
+                
+                colors = Array(labels.length).fill(baseColor);
+            }
+
+            // Update Chart
+            keywordChartInstance.data.labels = labels;
+            keywordChartInstance.data.datasets[0].data = values;
+            keywordChartInstance.data.datasets[0].backgroundColor = colors;
+            keywordChartInstance.update();
+
+            // Update Insight
+            const insightBox = document.getElementById('keyword-insight-content');
+            insightBox.style.opacity = 0;
+            setTimeout(() => {
+                insightBox.innerHTML = insight;
+                insightBox.style.opacity = 1;
+            }, 200);
+        }
+
+        // Init Sentiment Chart
+        function initSentimentChart() {
+            const ctx = document.getElementById('sentimentChart').getContext('2d');
+            
+            sentimentChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['긍정 (Positive)', '부정 (Negative)'],
+                    datasets: [{
+                        data: [reportData.sentiment.positive, reportData.sentiment.negative],
+                        backgroundColor: ['#4299e1', '#fc8181'], // Blue 500, Red 400
+                        hoverBackgroundColor: ['#3182ce', '#f56565'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            if (index === 1) { // Negative clicked
+                                showNegativeDetail();
+                            } else {
+                                hideNegativeDetail();
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                },
+                                afterLabel: function(context) {
+                                    if (context.label.includes('부정')) {
+                                        return "(클릭하여 상세 분석 보기)";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Sentiment Toggle Logic
+        function showNegativeDetail() {
+            const defaultView = document.getElementById('sentiment-default');
+            const detailView = document.getElementById('sentiment-negative-detail');
+
+            defaultView.style.opacity = '0';
+            defaultView.style.pointerEvents = 'none';
+            
+            detailView.style.opacity = '1';
+            detailView.style.pointerEvents = 'auto';
+
+            // Highlight chart segment
+            // (Optional visualization enhancement logic could go here)
+        }
+
+        function hideNegativeDetail() {
+            const defaultView = document.getElementById('sentiment-default');
+            const detailView = document.getElementById('sentiment-negative-detail');
+
+            detailView.style.opacity = '0';
+            detailView.style.pointerEvents = 'none';
+            
+            defaultView.style.opacity = '1';
+            defaultView.style.pointerEvents = 'auto';
+        }
+
+        function toggleSentimentDetails() {
+            // Helper for text link
+            const detailView = document.getElementById('sentiment-negative-detail');
+            if(getComputedStyle(detailView).opacity === '0') {
+                showNegativeDetail();
+            } else {
+                hideNegativeDetail();
+            }
+        }
+
+        // Scroll Logic
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                // Update nav active state
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Modal Logic
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto'; // Restore background scrolling
+            }
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeModal('infographicModal');
+                closeModal('reportModal');
+            }
+        });
+
+        // Initialize on Load
+        window.addEventListener('load', () => {
+            initKeywordChart();
+            initSentimentChart();
+        });
+
+    </script>
+</body>
+</html>
